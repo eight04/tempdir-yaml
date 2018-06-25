@@ -86,6 +86,6 @@ Resolve `filename` with the root of the temporary folder.
 Changelog
 ---------
 
-* 0.1.0 (next)
+* 0.1.0 (Jun 26, 2018)
 
-    - First release.
+  - First release.
