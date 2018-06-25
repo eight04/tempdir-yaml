@@ -1,0 +1,39 @@
+{
+  "name": "tempdir-yaml",
+  "version": "0.0.0",
+  "description": "Build temporary directories and files with YAML definition.",
+  "author": "eight04 <eight04@gmail.com>",
+  "license": "MIT",
+  "keywords": [
+    "tmp",
+    "temp",
+    "tmpdir",
+    "tempdir",
+    "yaml",
+    "test",
+    "testing"
+  ],
+  "scripts": {
+    "lint": "eslint **/*.js --ignore-pattern coverage --cache",
+    "nyc": "nyc --reporter=html mocha",
+    "test": "npm run lint && npm run nyc",
+    "preversion": "npm test",
+    "postversion": "git push --follow-tags && npm publish"
+  },
+  "files": [],
+  "main": "index.js",
+  "dependencies": {
+    "dedent": "^0.7.0",
+    "js-yaml": "^3.12.0",
+    "temporarily": "^1.0.3"
+  },
+  "devDependencies": {
+    "codecov": "^3.0.2",
+    "eslint": "^4.19.1",
+    "mocha": "^5.2.0",
+    "mocha-context": "^0.1.2",
+    "nyc": "^11.8.0",
+    "sinon": "^5.0.7"
+  },
+  "repository": "eight04/tempdir-yaml"
+}
