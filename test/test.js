@@ -2,39 +2,42 @@
 const assert = require("assert");
 const fs = require("fs");
 
-const {makeDir} = require("..");
+const {withDir} = require("..");
 
 describe("makeDir", () => {
-  it("list example", () => {
-    const resolve = makeDir(`
+  it("list example", () =>
+    withDir(`
       - package.json
       - sub-dir:
         - foo.txt: |
            content of foo
-    `);
-    assert(fs.statSync(resolve("package.json")).isFile());
-    assert(fs.statSync(resolve("sub-dir")).isDirectory());
-    const content = fs.readFileSync(resolve("sub-dir/foo.txt"), "utf8");
-    assert.equal(content, "content of foo\n");
-  });
+    `, resolve => {
+      assert(fs.statSync(resolve("package.json")).isFile());
+      assert(fs.statSync(resolve("sub-dir")).isDirectory());
+      const content = fs.readFileSync(resolve("sub-dir/foo.txt"), "utf8");
+      assert.equal(content, "content of foo\n");
+    })
+  );
   
-  it("map example", () => {
-    const resolve = makeDir(`
+  it("map example", () =>
+    withDir(`
       package.json: ""
       sub-dir:
         foo.txt: |
           content of foo
-    `);
-    assert(fs.statSync(resolve("package.json")).isFile());
-    assert(fs.statSync(resolve("sub-dir")).isDirectory());
-    const content = fs.readFileSync(resolve("sub-dir/foo.txt"), "utf8");
-    assert.equal(content, "content of foo\n");
-  });
+    `, resolve => {
+      assert(fs.statSync(resolve("package.json")).isFile());
+      assert(fs.statSync(resolve("sub-dir")).isDirectory());
+      const content = fs.readFileSync(resolve("sub-dir/foo.txt"), "utf8");
+      assert.equal(content, "content of foo\n");
+    })
+  );
   
-  it("empty dir", () => {
-    const resolve = makeDir(`
+  it("empty dir", () =>
+    withDir(`
       - foo:
-    `);
-    assert(fs.statSync(resolve("foo")).isDirectory());
-  });
+    `, resolve => {
+      assert(fs.statSync(resolve("foo")).isDirectory());
+    })
+  );
 });
