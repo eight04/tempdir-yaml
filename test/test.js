@@ -83,6 +83,18 @@ describe("withDir", () => {
       assert.fail();
     }), /ENOENT/)
   );
+  
+  it("work with async callback", () =>
+    withDir(`
+      - foo.txt: |
+          FOO
+    `, resolve =>
+      Promise.resolve()
+        .then(() => {
+          assert.equal(fs.readFileSync(resolve("foo.txt"), "utf8"), "FOO\n");
+        })
+    )
+  );
 });
 
 describe("tree2dir", () => {

@@ -53,12 +53,12 @@ function tree2dir(base, children) {
   return Promise.all(children.map(async child => {
     if (child.type === "file") {
       const name = path.resolve(base, child.name);
-      return writeFile(name, child.data || "");
+      return await writeFile(name, child.data || "");
     }
     if (child.type === "dir") {
       const name = path.resolve(base, child.name);
       await mkdir(name);
-      return tree2dir(name, child.children);
+      return await tree2dir(name, child.children);
     }
     throw new TypeError(`unknown type: '${child.type}'`);
   }));
@@ -85,7 +85,7 @@ async function withDir(text, onReady) {
   let dir;
   try {
     dir = await makeDir(text);
-    return onReady(dir.resolve);
+    return await onReady(dir.resolve);
   } finally {
     if (dir) {
       dir.cleanup();
