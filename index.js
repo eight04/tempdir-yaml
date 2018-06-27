@@ -50,65 +50,47 @@ function yaml2tree(text) {
 }
 
 function tree2dir(base, children) {
-  return Promise.all(children.map(child =>
-    new Promise((resolve, reject) => {
-      if (child.type === "file") {
-        const name = path.resolve(base, child.name);
-        writeFile(name, child.data || "").then(resolve, reject);
-      } else if (child.type === "dir") {
-        const name = path.resolve(base, child.name);
-        mkdir(name)
-          .then(() => tree2dir(name, child.children))
-          .then(resolve, reject);
-      } else {
-        throw new Error(`unknown type: '${child.type}'`);
-      }
-    })
-  ));
+  return Promise.all(children.map(async child => {
+    if (child.type === "file") {
+      const name = path.resolve(base, child.name);
+      return writeFile(name, child.data || "");
+    }
+    if (child.type === "dir") {
+      const name = path.resolve(base, child.name);
+      await mkdir(name);
+      return tree2dir(name, child.children);
+    }
+    throw new TypeError(`unknown type: '${child.type}'`);
+  }));
 }
 
-function makeDir(text) {
-  return new Promise((resolve, reject) => {
-    const children = yaml2tree(text);
-    getTmpDir()
-      .then(({path: base, cleanup}) =>
-        tree2dir(base, children)
-          .then(
-            () => {
-              resolve({
-                resolve: (...args) => path.resolve(base, ...args),
-                cleanup
-              });
-            },
-            reject
-          )
-      );
-  });
+async function makeDir(text) {
+  // text could be null
+  const children = text && yaml2tree(text);
+  const {path: base, cleanup} = await getTmpDir();
+  if (children) {
+    await tree2dir(base, children);
+  }
+  return {
+    resolve: (...args) => path.resolve(base, ...args),
+    cleanup
+  };
 }
 
-function withDir(text, onReady) {
+async function withDir(text, onReady) {
   if (typeof text === "function") {
     onReady = text;
-    text = "{}";
+    text = null;
   }
-  let cleanup;
-  return makeDir(text)
-    .then(dir => {
-      cleanup = dir.cleanup;
-      return onReady(dir.resolve);
-    })
-    .then(
-      result => {
-        cleanup();
-        return result;
-      },
-      err => {
-        if (cleanup) {
-          cleanup();
-        }
-        throw err;
-      }
-    );
+  let dir;
+  try {
+    dir = await makeDir(text);
+    return onReady(dir.resolve);
+  } finally {
+    if (dir) {
+      dir.cleanup();
+    }
+  }
 }
 
 module.exports = {

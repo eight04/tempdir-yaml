@@ -13,6 +13,9 @@
     "test",
     "testing"
   ],
+  "engines": {
+    "node": ">=8"
+  },
   "scripts": {
     "lint": "eslint **/*.js --ignore-pattern coverage --cache",
     "nyc": "nyc --reporter=html mocha",
