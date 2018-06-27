@@ -2,9 +2,9 @@
 const assert = require("assert");
 const fs = require("fs");
 
-const {withDir} = require("..");
+const {withDir, tree2dir} = require("..");
 
-describe("makeDir", () => {
+describe("withDir", () => {
   it("list example", () =>
     withDir(`
       - package.json
@@ -50,5 +50,43 @@ describe("makeDir", () => {
       assert(fs.statSync(resolve("foo.txt")).isFile());
       assert(fs.statSync(resolve("foo/foo.txt")).isFile());
     })
+  );
+  
+  it("no children", () =>
+    withDir(resolve => {
+      assert(fs.statSync(resolve(".")).isDirectory());
+    })
+  );
+  
+  it("cleanup on error", () => {
+    let base;
+    return assert.rejects(withDir(`
+      - foo.txt
+      - bar:
+        - bar.txt: |
+            BAR
+    `, resolve => {
+      base = resolve(".");
+      assert(fs.statSync(base).isDirectory());
+      throw new Error("must fail");
+    }), /must fail/)
+      .then(() => {
+        assert.equal(typeof base, "string");
+        assert.throws(() => fs.statSync(base));
+      });
+  });
+  
+  it("make file error", () =>
+    assert.rejects(withDir(`
+      - foo/bar.txt # invalid character
+    `, () => {
+      assert.fail();
+    }), /ENOENT/)
+  );
+});
+
+describe("tree2dir", () => {
+  it("unknown type", () =>
+    assert.rejects(tree2dir(".", [{type: "unknown"}]), /unknown type: 'unknown'/)
   );
 });

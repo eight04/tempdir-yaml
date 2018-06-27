@@ -1,8 +1,13 @@
 const fs = require("fs");
 const path = require("path");
+const {promisify} = require("util");
+
 const yaml = require("js-yaml");
 const dedent = require("dedent");
 const tmp = require("tmp");
+
+const writeFile = promisify(fs.writeFile);
+const mkdir = promisify(fs.mkdir);
 
 function getTmpDir() {
   return new Promise((resolve, reject) => {
@@ -44,26 +49,17 @@ function yaml2tree(text) {
   }
 }
 
-function tree2Dir(base, children) {
+function tree2dir(base, children) {
   return Promise.all(children.map(child =>
     new Promise((resolve, reject) => {
-      const name = path.resolve(base, child.name);
       if (child.type === "file") {
-        fs.writeFile(name, child.data || "", err => {
-          if (err) {
-            reject(err);
-            return;
-          }
-          resolve();
-        });
+        const name = path.resolve(base, child.name);
+        writeFile(name, child.data || "").then(resolve, reject);
       } else if (child.type === "dir") {
-        fs.mkdir(name, err => {
-          if (err) {
-            reject(err);
-            return;
-          }
-          tree2Dir(name, child.children).then(resolve, reject);
-        });
+        const name = path.resolve(base, child.name);
+        mkdir(name)
+          .then(() => tree2dir(name, child.children))
+          .then(resolve, reject);
       } else {
         throw new Error(`unknown type: '${child.type}'`);
       }
@@ -76,7 +72,7 @@ function makeDir(text) {
     const children = yaml2tree(text);
     getTmpDir()
       .then(({path: base, cleanup}) =>
-        tree2Dir(base, children)
+        tree2dir(base, children)
           .then(
             () => {
               resolve({
@@ -117,5 +113,7 @@ function withDir(text, onReady) {
 
 module.exports = {
   makeDir,
-  withDir
+  withDir,
+  yaml2tree,
+  tree2dir
 };
