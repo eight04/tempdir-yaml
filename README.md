@@ -106,6 +106,11 @@ it("my test", () =>
 Changelog
 ---------
 
+* 0.2.0 (Jun 27, 2018)
+
+  - **Change: the signature of `makeDir` is changed.**
+  - Add: `withDir`.
+
 * 0.1.0 (Jun 26, 2018)
 
   - First release.
