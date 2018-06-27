@@ -2,7 +2,7 @@ tempdir-yaml
 ============
 
 [![Build Status](https://travis-ci.org/eight04/tempdir-yaml.svg?branch=master)](https://travis-ci.org/eight04/tempdir-yaml)
-[![Coverage Status](https://coveralls.io/repos/github/eight04/tempdir-yaml/badge.svg?branch=master)](https://coveralls.io/github/eight04/tempdir-yaml?branch=master)
+[![codecov](https://codecov.io/gh/eight04/tempdir-yaml/branch/master/graph/badge.svg)](https://codecov.io/gh/eight04/tempdir-yaml)
 [![install size](https://packagephobia.now.sh/badge?p=tempdir-yaml)](https://packagephobia.now.sh/result?p=tempdir-yaml)
 
 Build temporary directories and files with YAML definition. Inspired by [the filemaker of pydeps](https://github.com/thebjorn/pydeps/blob/83762459eed1d199af8ac580b2882189cbca1624/tests/filemaker.py).
@@ -12,19 +12,20 @@ Usage
 
 ```js
 const fs = require("fs");
-const {makeDir} = require("tempdir-yaml");
+const {withDir} = require("tempdir-yaml");
 
 describe("a test", () => {
-  it("a case", () => {
-    const resolve = makeDir(`
+  it("a case", () =>
+    withDir(`
       - package.json
       - sub-dir:
         - foo.txt: |
            content of foo
-    `);
-    const data = fs.readFileSync(resolve("sub-dir/foo.txt"), "utf-8");
-    assert.equal(data, "content of foo\n");
-  });
+    `, resolve => {
+      const data = fs.readFileSync(resolve("sub-dir/foo.txt"), "utf-8");
+      assert.equal(data, "content of foo\n");
+    })
+  );
 });
 ```
 
@@ -32,13 +33,13 @@ Some quick examples:
 
 * An empty folder:
   ```yaml
-  - dirname:
+  - my-dir:
   ```
-* A directory with children:
+* A directory containing some files:
   ```yaml
-  - dirname:
-    - child1
-    - child2
+  - my-dir:
+    - file1
+    - file2
   ```
 * An empty file:
   ```yaml
@@ -59,13 +60,13 @@ npm install -D tempdir-yaml
 API reference
 -------------
 
-This module exports following members:
+### makeDir
 
-* `makeDir(definition)` - create a temporary file tree and return a resolve function.
+```js
+async makeDir(yaml:String) => {resolve(...args) => absPath:String, cleanup()}
+```
 
-### makeDir(yaml: String) => resolve
-
-Create a temporary file tree and return a `resolve` function. `yaml` is [dedent](https://www.npmjs.com/package/dedent)ed before parsed.
+Create a temporary file tree and return a `resolve` function and a `cleanup` function. `yaml` is [dedent](https://www.npmjs.com/package/dedent)ed before parsed.
 
 The file tree is created according to the type of the value:
 
@@ -77,11 +78,30 @@ The file tree is created according to the type of the value:
   - *null* - create an empty folder.
   - *a list or a map* - create a folder and use `data` as the children.
   
-The temporary folder would be cleaned up at the "exit" event.
+`resolve` function resolves relative paths to an absolute path based on the temporary folder. You can get the root path with `resolve(".")`.
 
-### resolve(filename) => absoluteFilename
+`cleanup` function would remove the temporary folder. If `cleanup` is not called, the temporary folder would be removed at the "exit" event.
 
-Resolve `filename` with the root of the temporary folder.
+### withDir
+
+```js
+async withDir(yaml:String, async onReady(resolve))
+```
+
+A wrapper of `makeDir` that would automatically cleanup when `onReady` returns/throws.
+
+```js
+it("my test", () =>
+  withDir(`
+    - foo.txt: |
+        FOO
+    - bar.txt: |
+        BAR
+  `, resolve => {
+    // test something with the files...
+  })
+);
+```
 
 Changelog
 ---------

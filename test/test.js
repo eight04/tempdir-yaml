@@ -2,39 +2,91 @@
 const assert = require("assert");
 const fs = require("fs");
 
-const {makeDir} = require("..");
+const {withDir, tree2dir} = require("..");
 
-describe("makeDir", () => {
-  it("list example", () => {
-    const resolve = makeDir(`
+describe("withDir", () => {
+  it("list example", () =>
+    withDir(`
       - package.json
       - sub-dir:
         - foo.txt: |
            content of foo
-    `);
-    assert(fs.statSync(resolve("package.json")).isFile());
-    assert(fs.statSync(resolve("sub-dir")).isDirectory());
-    const content = fs.readFileSync(resolve("sub-dir/foo.txt"), "utf8");
-    assert.equal(content, "content of foo\n");
-  });
+    `, resolve => {
+      assert(fs.statSync(resolve("package.json")).isFile());
+      assert(fs.statSync(resolve("sub-dir")).isDirectory());
+      const content = fs.readFileSync(resolve("sub-dir/foo.txt"), "utf8");
+      assert.equal(content, "content of foo\n");
+    })
+  );
   
-  it("map example", () => {
-    const resolve = makeDir(`
+  it("map example", () =>
+    withDir(`
       package.json: ""
       sub-dir:
         foo.txt: |
           content of foo
-    `);
-    assert(fs.statSync(resolve("package.json")).isFile());
-    assert(fs.statSync(resolve("sub-dir")).isDirectory());
-    const content = fs.readFileSync(resolve("sub-dir/foo.txt"), "utf8");
-    assert.equal(content, "content of foo\n");
+    `, resolve => {
+      assert(fs.statSync(resolve("package.json")).isFile());
+      assert(fs.statSync(resolve("sub-dir")).isDirectory());
+      const content = fs.readFileSync(resolve("sub-dir/foo.txt"), "utf8");
+      assert.equal(content, "content of foo\n");
+    })
+  );
+  
+  it("empty dir", () =>
+    withDir(`
+      - foo:
+    `, resolve => {
+      assert(fs.statSync(resolve("foo")).isDirectory());
+    })
+  );
+  
+  it("duplicated filename", () =>
+    withDir(`
+      - foo.txt
+      - foo:
+        - foo.txt
+    `, resolve => {
+      assert(fs.statSync(resolve("foo.txt")).isFile());
+      assert(fs.statSync(resolve("foo/foo.txt")).isFile());
+    })
+  );
+  
+  it("no children", () =>
+    withDir(resolve => {
+      assert(fs.statSync(resolve(".")).isDirectory());
+    })
+  );
+  
+  it("cleanup on error", () => {
+    let base;
+    return assert.rejects(withDir(`
+      - foo.txt
+      - bar:
+        - bar.txt: |
+            BAR
+    `, resolve => {
+      base = resolve(".");
+      assert(fs.statSync(base).isDirectory());
+      throw new Error("must fail");
+    }), /must fail/)
+      .then(() => {
+        assert.equal(typeof base, "string");
+        assert.throws(() => fs.statSync(base));
+      });
   });
   
-  it("empty dir", () => {
-    const resolve = makeDir(`
-      - foo:
-    `);
-    assert(fs.statSync(resolve("foo")).isDirectory());
-  });
+  it("make file error", () =>
+    assert.rejects(withDir(`
+      - foo/bar.txt # invalid character
+    `, () => {
+      assert.fail();
+    }), /ENOENT/)
+  );
+});
+
+describe("tree2dir", () => {
+  it("unknown type", () =>
+    assert.rejects(tree2dir(".", [{type: "unknown"}]), /unknown type: 'unknown'/)
+  );
 });

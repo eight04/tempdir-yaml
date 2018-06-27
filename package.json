@@ -13,6 +13,9 @@
     "test",
     "testing"
   ],
+  "engines": {
+    "node": ">=8"
+  },
   "scripts": {
     "lint": "eslint **/*.js --ignore-pattern coverage --cache",
     "nyc": "nyc --reporter=html mocha",
@@ -25,7 +28,7 @@
   "dependencies": {
     "dedent": "^0.7.0",
     "js-yaml": "^3.12.0",
-    "temporarily": "^1.0.3"
+    "tmp": "0.0.33"
   },
   "devDependencies": {
     "codecov": "^3.0.2",
