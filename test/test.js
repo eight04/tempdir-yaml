@@ -40,4 +40,15 @@ describe("makeDir", () => {
       assert(fs.statSync(resolve("foo")).isDirectory());
     })
   );
+  
+  it("duplicated filename", () =>
+    withDir(`
+      - foo.txt
+      - foo:
+        - foo.txt
+    `, resolve => {
+      assert(fs.statSync(resolve("foo.txt")).isFile());
+      assert(fs.statSync(resolve("foo/foo.txt")).isFile());
+    })
+  );
 });
