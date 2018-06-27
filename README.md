@@ -7,6 +7,12 @@ tempdir-yaml
 
 Build temporary directories and files with YAML definition. Inspired by [the filemaker of pydeps](https://github.com/thebjorn/pydeps/blob/83762459eed1d199af8ac580b2882189cbca1624/tests/filemaker.py).
 
+Installation
+------------
+```
+npm install -D tempdir-yaml
+```
+
 Usage
 -----
 
@@ -51,14 +57,8 @@ Some quick examples:
      the content of the file
   ```
 
-Installation
-------------
-```
-npm install -D tempdir-yaml
-```
-
-API reference
--------------
+API
+----
 
 ### makeDir
 
