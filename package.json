@@ -28,7 +28,7 @@
   "dependencies": {
     "dedent": "^0.7.0",
     "js-yaml": "^3.13.1",
-    "tmp": "0.0.33"
+    "tmp": "^0.1.0"
   },
   "devDependencies": {
     "eslint": "^5.16.0",
