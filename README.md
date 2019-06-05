@@ -63,7 +63,11 @@ API
 ### makeDir
 
 ```js
-async makeDir(yaml:String) => {resolve(...args) => absPath:String, cleanup()}
+async makeDir(yaml: String) =>
+  ({
+    resolve: (...args) => absPath: String,
+    cleanup: async () => undefined
+  })
 ```
 
 Create a temporary file tree and return a `resolve` function and a `cleanup` function. `yaml` is [dedent](https://www.npmjs.com/package/dedent)ed before parsed.
