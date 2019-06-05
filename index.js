@@ -16,7 +16,10 @@ function getTmpDir() {
         reject(err);
         return;
       }
-      resolve({path, cleanup});
+      resolve({
+        path,
+        cleanup: () => new Promise(resolve => cleanup(resolve))
+      });
     });
   });
 }
@@ -88,9 +91,7 @@ async function withDir(text, onReady) {
     return await onReady(dir.resolve);
   } finally {
     if (dir) {
-      await new Promise(resolve => {
-        dir.cleanup(resolve);
-      });
+      await dir.cleanup();
     }
   }
 }
