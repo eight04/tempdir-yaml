@@ -27,14 +27,13 @@
   "main": "index.js",
   "dependencies": {
     "dedent": "^0.7.0",
-    "js-yaml": "^3.12.0",
-    "tmp": "0.0.33"
+    "js-yaml": "^3.13.1",
+    "tmp": "^0.1.0"
   },
   "devDependencies": {
-    "codecov": "^3.0.2",
-    "eslint": "^4.19.1",
-    "mocha": "^5.2.0",
-    "nyc": "^11.8.0"
+    "eslint": "^5.16.0",
+    "mocha": "^6.1.4",
+    "nyc": "^14.1.1"
   },
   "repository": "eight04/tempdir-yaml"
 }
