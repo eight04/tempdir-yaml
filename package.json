@@ -31,9 +31,8 @@
     "tmp": "0.0.33"
   },
   "devDependencies": {
-    "codecov": "^3.0.2",
     "eslint": "^5.16.0",
-    "mocha": "^5.2.0",
+    "mocha": "^6.1.4",
     "nyc": "^14.1.1"
   },
   "repository": "eight04/tempdir-yaml"
