@@ -1,6 +1,6 @@
 {
   "name": "tempdir-yaml",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Build temporary directories and files with YAML definition.",
   "author": "eight04 <eight04@gmail.com>",
   "license": "MIT",
