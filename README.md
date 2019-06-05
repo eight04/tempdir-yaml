@@ -110,6 +110,11 @@ it("my test", () =>
 Changelog
 ---------
 
+* 0.3.0 (Jun 5, 2019)
+
+  - Bump dependencies.
+  - **Breaking: now `cleanup` is an async function.**
+
 * 0.2.1 (Jun 27, 2018)
 
   - Fix: ENOENT error when `onReady` is async in `withDir`.
