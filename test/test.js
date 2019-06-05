@@ -2,7 +2,17 @@
 const assert = require("assert");
 const fs = require("fs");
 
-const {withDir, tree2dir} = require("..");
+const {withDir, tree2dir, makeDir} = require("..");
+
+describe("makeDir", () => {
+  it("cleanup is an async function", async () => {
+    const {cleanup} = await makeDir();
+    assert.equal(typeof cleanup, "function");
+    const r = cleanup();
+    assert(r.then);
+    await r;
+  });
+});
 
 describe("withDir", () => {
   it("list example", () =>
