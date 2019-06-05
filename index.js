@@ -88,7 +88,9 @@ async function withDir(text, onReady) {
     return await onReady(dir.resolve);
   } finally {
     if (dir) {
-      dir.cleanup();
+      await new Promise(resolve => {
+        dir.cleanup(resolve);
+      });
     }
   }
 }
